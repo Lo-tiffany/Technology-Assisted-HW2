@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Earthquake Explorer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <aside class="panel">
+    <header>
+      <h1>Earthquake Explorer</h1>
+      <p id="source" class="muted">載入資料中…</p>
+    </header>
+
+    <section aria-labelledby="filters-title">
+      <h2 id="filters-title">篩選</h2>
+
+      <label for="minMag">最小規模:<output id="minMagValue">0.0</output></label>
+      <input id="minMag" type="range" min="0" max="9" step="0.1" value="0">
+
+      <label class="check">
+        <input id="unknown" type="checkbox">
+        規模篩選時,也顯示規模未知的事件
+      </label>
+
+      <div class="dates">
+        <label for="start">起日<input id="start" type="date"></label>
+        <label for="end">迄日<input id="end" type="date"></label>
+      </div>
+      <p class="muted small">日期以 UTC+8 計算,起迄日都包含。</p>
+
+      <button id="reset" type="button">重設篩選</button>
+      <p id="msg" class="error" role="alert"></p>
+    </section>
+
+    <section aria-labelledby="stats-title">
+      <h2 id="stats-title">目前結果</h2>
+      <p id="count" class="count"></p>
+      <p id="strongest" class="muted"></p>
+      <ul id="buckets" class="buckets"></ul>
+    </section>
+
+    <section class="list-section" aria-labelledby="list-title">
+      <h2 id="list-title">事件清單(新到舊)</h2>
+      <ul id="list" class="list"></ul>
+    </section>
+  </aside>
+
+  <main id="map" aria-label="地震事件地圖"></main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

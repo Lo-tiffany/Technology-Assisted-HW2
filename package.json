@@ -1,0 +1,18 @@
+{
+  "name": "earthquake-explorer",
+  "version": "1.0.0",
+  "description": "Earthquake Explorer: 地震事件互動地圖、篩選工具與 MCP server",
+  "type": "module",
+  "engines": { "node": ">=18.17" },
+  "scripts": {
+    "test": "node --test",
+    "start": "node scripts/serve.js",
+    "fetch-data": "node scripts/fetch-usgs.js",
+    "make-sample": "node scripts/make-sample.js",
+    "mcp": "node src/mcp/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "zod": "^3.25.0"
+  }
+}
