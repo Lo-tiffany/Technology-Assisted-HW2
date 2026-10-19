@@ -25,7 +25,8 @@ console.error(`[earthquake-explorer] 載入 ${events.length} 筆(略過 ${skippe
 const h = createHandlers(events, raw.metadata ?? {});
 
 const ok = (obj) => ({ content: [{ type: 'text', text: JSON.stringify(obj, null, 2) }] });
-const run = (fn) => (args) => {
+const run = (name, fn) => (args) => {
+  console.error(`[tool] ${name} ${JSON.stringify(args ?? {})}`); // 記錄每次被呼叫的工具與參數
   try { return ok(fn(args)); }
   catch (err) { return { isError: true, content: [{ type: 'text', text: String(err.message ?? err) }] }; }
 };
@@ -51,7 +52,7 @@ server.registerTool('dataset_info', {
   title: '資料集資訊',
   description: '回報目前載入的地震資料集:筆數、時間範圍、來源與擷取時間。回答問題前可先用它確認資料涵蓋範圍。',
   inputSchema: {},
-}, run(() => h.datasetInfo()));
+}, run('dataset_info', () => h.datasetInfo()));
 
 server.registerTool('filter_earthquakes', {
   title: '篩選地震事件',
@@ -62,19 +63,19 @@ server.registerTool('filter_earthquakes', {
     order: z.enum(['asc', 'desc']).optional().describe('排序方向,預設 desc'),
     limit: z.number().int().min(1).max(100).optional().describe('最多回傳幾筆,預設 20,上限 100'),
   },
-}, run((args) => h.filterEarthquakes(args)));
+}, run('filter_earthquakes', (args) => h.filterEarthquakes(args)));
 
 server.registerTool('summarize_earthquakes', {
   title: '統計地震事件',
   description: '對符合條件的事件做統計:總數、最大規模事件、規模分級、每日件數(UTC)。',
   inputSchema: filterShape,
-}, run((args) => h.summarizeEarthquakes(args)));
+}, run('summarize_earthquakes', (args) => h.summarizeEarthquakes(args)));
 
 server.registerTool('get_earthquake', {
   title: '取得單一事件',
   description: '以事件 id 取得單一地震事件的完整資料。',
   inputSchema: { id: z.string().describe('事件 id,例如 us7000abcd') },
-}, run((args) => h.getEarthquake(args)));
+}, run('get_earthquake', (args) => h.getEarthquake(args)));
 
 await server.connect(new StdioServerTransport());
 console.error('[earthquake-explorer] MCP server 已啟動(stdio)');
