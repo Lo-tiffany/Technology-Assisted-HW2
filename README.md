@@ -9,7 +9,7 @@
    → parse(缺值保留 null)
    → filter / sort / stats (純函式，單元測試的重點)
     ├─→ 網頁: 地圖 + 事件清單 + 統計
-    └─→ MCP server:filter_earthquakes / summarize_earthquakes / ...
+    └─→ MCP server: dataset_info / filter_earthquakes / summarize_earthquakes / get_earthquake
 ```
 
 ## 目錄結構
@@ -18,7 +18,7 @@
 src/core/      純邏輯: parse、filter、sort、stats、query、geo、time
 src/mcp/       MCP server(server.js)與工具邏輯(handlers.js，可單獨測試)
 web/           網頁(index.html、app.js、style.css)
-scripts/       fetch-usgs.js(下載資料)、make-sample.js、serve.js
+scripts/       fetch-usgs.js(下載資料)、make-sample.js、serve.js、gemini-demo.js(Gemini + MCP 示範)
 data/          sample.geojson(合成範例)、earthquakes.geojson(下載的真實資料)
 test/          單元測試(node:test)
 ```
@@ -28,13 +28,15 @@ test/          單元測試(node:test)
 需要 Node.js 18.17 以上 (建議 20 以上)
 
 ```bash
-# 1. 直接用合成範例資料看網頁(不需網路下載資料)
+npm install                    # 安裝依賴(網頁與單元測試不需要,MCP 與 Gemini 示範需要)
+
+# 1. 看網頁(有 data/earthquakes.geojson 就用真實資料,否則用合成範例)
 npm start                      # 然後開 http://localhost:8000/web/
 
-# 2. 下載真實資料(見下節)，網頁會自動優先使用 data/earthquakes.geojson
+# 2. 下載真實資料(見下節)
 npm run fetch-data
 
-# 3. 跑單元測試(不需要 npm install)
+# 3. 跑單元測試
 npm test
 ```
 
@@ -61,13 +63,20 @@ node scripts/fetch-usgs.js --bbox 21.5,25.8,119,123       # minLat,maxLat,minLon
 node scripts/fetch-usgs.js --out data/my-data.geojson
 ```
 
-腳本會把**擷取時間、查詢網址、查詢條件**寫進檔案的 `metadata`，網頁頂端會顯示。
+腳本會把**擷取時間、查詢網址、查詢條件**寫進檔案的 `metadata`(`fetchedAt`、`queryUrl`、`query`)，網頁頂端會顯示。
 
+下載一次後就把檔案 commit 進 git，展示與測試都用這份固定資料，不做即時監控。
 
 ### 方法二:手動下載
 
 到 [USGS 搜尋頁](https://earthquake.usgs.gov/earthquakes/search/) 設定條件，輸出選 GeoJSON。
+手動下載的檔案沒有 `fetchedAt`，要自行記下下載日期與條件。
 
+### 本專案目前使用的資料集
+
+- 共 **104 筆**事件
+- 事件時間範圍:2025-10-08 至 2026-09-30 (UTC+8)
+- 擷取時間與查詢條件記錄在 `data/earthquakes.geojson` 的 `metadata` 欄位
 
 ### 資料的限制
 
@@ -76,7 +85,7 @@ node scripts/fetch-usgs.js --out data/my-data.geojson
 - 單次查詢上限 20000 筆，超過時腳本會警告，請縮小範圍分次下載。
 - 時間是 UTC，網頁以 UTC+8 顯示與篩選。
 - 部分事件規模可能缺值，程式一律視為「未知」，不會當成 0。
-- `data/sample.geojson` 是**合成資料**(`make-sample.js` 以固定亂數產生)，只用於展示與測試。
+- `data/sample.geojson` 是**合成資料**(`make-sample.js` 以固定亂數產生)，只用於展示與測試，不是真實地震。
 
 ## 網頁操作
 
@@ -97,14 +106,18 @@ npm test
 規模與時間缺值不被當成 0、座標順序、跨 180° 經線、距離計算、時區換算、MCP 工具邏輯
 - GitHub Actions 會在每次 push 自動執行(`.github/workflows/test.yml`)
 
+### 測試範圍與限制
+
+| 部分 | 驗證方式 |
+|---|---|
+| `src/core/*`、`src/mcp/handlers.js` | 自動化單元測試 |
+| `web/app.js`(地圖與介面) | 人工操作驗證，沒有自動化測試 |
+| `scripts/fetch-usgs.js` | 依賴外部網路，以實際下載驗證，沒有自動化測試 |
+| `src/mcp/server.js` | 以 MCP Inspector 與 Gemini API 實測，沒有自動化測試 |
+
 ## MCP server
 
-```bash
-npm install                    # 安裝 @modelcontextprotocol/sdk 與 zod(只有 MCP 需要)
-npx @modelcontextprotocol/inspector node src/mcp/server.js   # 用 Inspector 手動測試
-```
-
-提供的工具:
+把篩選、排序、統計包成 4 個工具，讓 agent 可以呼叫。網頁與 MCP 共用 `src/core/` 同一套邏輯。
 
 | 工具 | 用途 |
 |---|---|
@@ -114,25 +127,23 @@ npx @modelcontextprotocol/inspector node src/mcp/server.js   # 用 Inspector 手
 | `get_earthquake` | 以 id 取得單一事件 |
 
 資料檔預設讀 `data/earthquakes.geojson`(沒有就選擇 `sample.geojson`)，可用環境變數 `EQ_DATA` 指定。
+每次工具被呼叫時，server 會在 stderr 印出 `[tool] 工具名稱 參數`，方便確認 agent 真的呼叫了工具。
 
-**Claude Code:**
+### 方式一:MCP Inspector(不需要 API 金鑰)
 
 ```bash
-claude mcp add earthquake -- node /絕對路徑/earthquake-explorer/src/mcp/server.js
+npx @modelcontextprotocol/inspector node src/mcp/server.js
 ```
 
-**Claude Desktop**(`claude_desktop_config.json`):
+在開啟的網頁按 Connect → Tools → List Tools，即可手動執行各工具。
 
-```json
-{
-  "mcpServers": {
-    "earthquake-explorer": {
-      "command": "node",
-      "args": ["/絕對路徑/earthquake-explorer/src/mcp/server.js"],
-      "env": { "EQ_DATA": "/絕對路徑/earthquake-explorer/data/earthquakes.geojson" }
-    }
-  }
-}
+### 方式二:Gemini API + MCP(Windows PowerShell 範例)
+
+```powershell
+npm install
+# 到 https://aistudio.google.com/apikey 申請金鑰
+$env:GEMINI_API_KEY="你的金鑰"
+node scripts/gemini-demo.js "這份資料涵蓋哪段時間?規模 5 以上的地震有幾筆?最大的是哪一筆?"
 ```
 
 展示問法範例：
@@ -140,3 +151,12 @@ claude mcp add earthquake -- node /絕對路徑/earthquake-explorer/src/mcp/serv
 - 「9 月規模 5 以上有幾筆？」
 - 「離台北 100 公里內規模 4 以上的事件有哪些？」
 
+### 驗證結果
+
+| 檢查項目 | 結果 |
+|---|---|
+| Gemini API 自動呼叫 `dataset_info`、`summarize_earthquakes`、`filter_earthquakes` | 成功，終端機有 `[tool]` 記錄 |
+| 交叉驗證:規模 ≥ 5 的事件數 | 網頁 **11** 筆 = MCP 回傳 **11** 筆，一致 |
+| MCP 回報規模最大的事件 | `us7000rl2n`，規模 6.6，2025-12-27 23:05(UTC+8)，深度 63 km |
+
+註:Gemini 的回答由模型生成，措辭每次可能不同，以工具回傳的資料為準。
