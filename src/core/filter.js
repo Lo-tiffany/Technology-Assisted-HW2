@@ -8,12 +8,12 @@ function assertFinite(v, name) {
 }
 
 /**
- * 篩選事件(不會修改輸入陣列)。
+ * 篩選事件
  * @param {Array} events
  * @param {object} opts
- *  - minMagnitude / maxMagnitude: 含邊界。啟用規模篩選時,規模為 null 的事件預設排除
- *  - includeUnknownMagnitude: true 時,規模未知的事件在規模篩選下仍保留
- *  - startTime / endTime: 含邊界,number | Date | ISO 字串(無時區的日期字串視為 UTC)
+ *  - minMagnitude / maxMagnitude: 含邊界 (規模為 null 的事件預設排除)
+ *  - includeUnknownMagnitude: true 時，規模未知的事件在規模篩選下仍保留
+ *  - startTime / endTime: 含邊界
  *  - bbox: {minLat, maxLat, minLon, maxLon}
  *  - near: {lat, lon, radiusKm}
  */

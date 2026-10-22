@@ -2,7 +2,7 @@ import { formatTime } from './time.js';
 
 export const BUCKETS = ['<3', '3-4', '4-5', '5-6', '6+', 'unknown'];
 
-/** 規模分級。下界含、上界不含:5.0 屬於 '5-6'。 */
+/** 規模分級 (含下界、不含上界) */
 export function magnitudeBucket(m) {
   if (typeof m !== 'number' || !Number.isFinite(m)) return 'unknown';
   if (m < 3) return '<3';
@@ -12,7 +12,7 @@ export function magnitudeBucket(m) {
   return '6+';
 }
 
-/** 統計摘要。perDay 的日期依 utcOffsetHours 換算。 */
+/** 統計摘要 */
 export function summarize(events, utcOffsetHours = 0) {
   const buckets = Object.fromEntries(BUCKETS.map((b) => [b, 0]));
   const perDay = {};

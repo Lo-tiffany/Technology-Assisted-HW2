@@ -1,5 +1,4 @@
-// 把 USGS GeoJSON 轉成內部事件格式。
-// 重點:缺值保留為 null(尤其是規模),絕不默默變成 0。
+// 把 USGS GeoJSON 轉成內部事件格式
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 

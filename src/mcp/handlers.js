@@ -1,4 +1,4 @@
-// MCP 工具的實際邏輯(不依賴 MCP SDK,方便單元測試)。
+// MCP 工具的實際邏輯
 import { runQuery } from '../core/query.js';
 import { summarize } from '../core/stats.js';
 

@@ -1,6 +1,6 @@
 const KEYS = ['time', 'magnitude', 'depth'];
 
-/** 排序(回傳新陣列)。值為 null 的事件不論升降冪一律排在最後。 */
+/** 排序 (回傳新陣列) */
 export function sortEvents(events, key = 'time', order = 'desc') {
   if (!KEYS.includes(key)) throw new Error(`sortBy must be one of: ${KEYS.join(', ')}`);
   if (order !== 'asc' && order !== 'desc') throw new Error("order must be 'asc' or 'desc'");

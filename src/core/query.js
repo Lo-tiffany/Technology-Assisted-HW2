@@ -1,5 +1,4 @@
-// 把「扁平參數」(網頁表單 / MCP 工具輸入)轉成 filter + sort + limit。
-// 網頁與 MCP 共用這一層,行為才會一致。
+// 把網頁表單 / MCP 工具輸入轉成 filter + sort + limit
 import { filterEvents } from './filter.js';
 import { sortEvents } from './sort.js';
 
