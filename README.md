@@ -5,7 +5,7 @@
 - 同一套篩選邏輯也包成 **MCP server**，讓 AI agent 能直接查詢 
 
 ```
-固定地震資料 (.geoJSON)
+固定地震資料 (.geojson)
    → parse(缺值保留 null)
    → filter / sort / stats (純函式，單元測試的重點)
     ├─→ 網頁: 地圖 + 事件清單 + 統計
@@ -77,7 +77,7 @@ node scripts/fetch-usgs.js --out data/my-data.geojson
 
 ### 資料的限制
 
-- USGS 對小規模事件並不完整，台灣周邊約從規模 4 左右才比較完善
+- USGS 對小規模事件並不完整，不能視為台灣周邊所有地震的完整清單。
 - 單次查詢上限 20000 筆，超過時會跳出警告，請縮小範圍分次下載。
 - 時間是 UTC，網頁以 UTC+8 顯示與篩選。
 - 部分事件規模可能缺值，程式一律視為「未知」。
@@ -122,7 +122,7 @@ npm test
 | `summarize_earthquakes` | 總數、最大規模事件、規模分級、每日件數 |
 | `get_earthquake` | 以 id 取得單一事件 |
 
-資料檔預設讀 `data/earthquakes.geojson`(沒有就選擇 `sample.geojson`)，可用環境變數 `EQ_DATA` 指定。
+資料檔預設讀 `data/earthquakes.geojson`(沒有就改讀 `sample.geojson`)，可用環境變數 `EQ_DATA` 指定。
 每次工具被呼叫時，server 會在 stderr 印出 `[tool] 工具名稱 參數`，方便確認 agent 真的呼叫了工具。
 
 ### 方式一:MCP Inspector(不需要 API 金鑰)
@@ -144,7 +144,7 @@ node scripts/gemini-demo.js "這份資料涵蓋哪段時間?規模 5 以上的�
 
 其他問法範例：
 - 「這份資料裡規模最大的地震是哪一筆？」
-- 「9 月規模 5 以上有幾筆？」
+- 「2026 年 9 月規模 5 以上有幾筆？」
 - 「離台北 100 公里內規模 4 以上的事件有哪些？」
 
 ### 驗證結果
