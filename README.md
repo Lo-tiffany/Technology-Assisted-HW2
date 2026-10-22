@@ -40,8 +40,7 @@ npm run fetch-data
 npm test
 ```
 
-> 地圖底圖使用 OpenStreetMap 線上圖磚，Leaflet 也從 CDN 載入，**展示時需要網路**。
-> 本機有資料檔不代表地圖可以離線顯示。若要離線展示，需要另外準備本機圖磚，但這個版本沒有做。
+> 地圖的底圖是使用 OpenStreetMap 線上圖磚，Leaflet 也從 CDN 載入，**展示時需要網路**。
 
 ## 資料集如何蒐集
 
@@ -65,8 +64,6 @@ node scripts/fetch-usgs.js --out data/my-data.geojson
 
 腳本會把**擷取時間、查詢網址、查詢條件**寫進檔案的 `metadata`(`fetchedAt`、`queryUrl`、`query`)，網頁頂端會顯示。
 
-下載一次後就把檔案 commit 進 git，展示與測試都用這份固定資料，不做即時監控。
-
 ### 方法二:手動下載
 
 到 [USGS 搜尋頁](https://earthquake.usgs.gov/earthquakes/search/) 設定條件，輸出選 GeoJSON。
@@ -80,12 +77,11 @@ node scripts/fetch-usgs.js --out data/my-data.geojson
 
 ### 資料的限制
 
-- USGS 對小規模事件並不完整，台灣周邊約從規模 4 左右才比較完善。想看小地震，需要改用中央氣象署的資料，
-  此版本沒有做該資料源的轉接。
-- 單次查詢上限 20000 筆，超過時腳本會警告，請縮小範圍分次下載。
+- USGS 對小規模事件並不完整，台灣周邊約從規模 4 左右才比較完善
+- 單次查詢上限 20000 筆，超過時會跳出警告，請縮小範圍分次下載。
 - 時間是 UTC，網頁以 UTC+8 顯示與篩選。
-- 部分事件規模可能缺值，程式一律視為「未知」，不會當成 0。
-- `data/sample.geojson` 是**合成資料**(`make-sample.js` 以固定亂數產生)，只用於展示與測試，不是真實地震。
+- 部分事件規模可能缺值，程式一律視為「未知」。
+- `data/sample.geojson` 是**合成資料**(`make-sample.js` 以固定亂數產生)，只用於測試用，不是真實地震。
 
 ## 網頁操作
 
@@ -146,7 +142,7 @@ $env:GEMINI_API_KEY="你的金鑰"
 node scripts/gemini-demo.js "這份資料涵蓋哪段時間?規模 5 以上的地震有幾筆?最大的是哪一筆?"
 ```
 
-展示問法範例：
+其他問法範例：
 - 「這份資料裡規模最大的地震是哪一筆？」
 - 「9 月規模 5 以上有幾筆？」
 - 「離台北 100 公里內規模 4 以上的事件有哪些？」
