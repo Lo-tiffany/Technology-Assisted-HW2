@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 產生「合成」範例資料(不是真實地震),供沒有網路或尚未下載真實資料時展示與測試。
+// 產生「合成」範例資料(不是真實地震)，測試用
 import { writeFile } from 'node:fs/promises';
 
 function mulberry32(seed) {

@@ -1,10 +1,5 @@
 #!/usr/bin/env node
-// 從 USGS 地震目錄 API 下載 GeoJSON 並存成固定資料檔。
-// 範例:
-//   node scripts/fetch-usgs.js                                   # 台灣周邊、近 1 年、M4.0+
-//   node scripts/fetch-usgs.js --start 2025-10-01 --end 2026-10-01 --minmag 3.5
-//   node scripts/fetch-usgs.js --preset world --minmag 6 --start 2020-01-01
-//   node scripts/fetch-usgs.js --bbox 21.5,25.8,119,123          # minLat,maxLat,minLon,maxLon
+// 從 USGS 地震目錄 API 下載 GeoJSON 並存成資料檔
 import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -66,7 +61,7 @@ if (json.features.length >= LIMIT) {
   console.error(`⚠️ 筆數達到上限 ${LIMIT},資料可能被截斷,請縮小時間或範圍分次下載。`);
 }
 
-// 標明擷取日期與查詢條件,方便報告引用與重現
+// 標明擷取日期與查詢條件
 json.metadata = {
   ...json.metadata,
   title: json.metadata?.title ?? 'USGS Earthquakes',

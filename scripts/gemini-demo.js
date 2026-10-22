@@ -15,7 +15,7 @@ const transport = new StdioClientTransport({
   command: process.execPath,          // 用目前的 node 啟動 MCP server
   args: [serverPath],
   env: { ...process.env },            // 讓 EQ_DATA 等環境變數傳進去
-  stderr: 'inherit',                  // 顯示 server 的載入訊息,方便除錯
+  stderr: 'inherit',                  // 顯示 server 的載入訊息，方便除錯
 });
 const mcp = new Client({ name: 'earthquake-demo', version: '1.0.0' });
 await mcp.connect(transport);
@@ -26,7 +26,7 @@ try {
     model: process.env.GEMINI_MODEL ?? 'gemini-flash-latest',
     contents: question,
     config: {
-      // mcpToTool 會讀取 server 的工具清單,並在模型要求時自動呼叫
+      // mcpToTool 會讀取 server 的工具清單，並在模型要求時自動呼叫
       tools: [mcpToTool(mcp)],
       systemInstruction:
         '你可以使用地震資料工具。回答前先用 dataset_info 確認資料涵蓋的時間範圍。' +

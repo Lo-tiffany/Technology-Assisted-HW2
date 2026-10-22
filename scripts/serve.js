@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// 零依賴的本機靜態伺服器(只綁定 127.0.0.1)。開啟 http://localhost:8000/web/
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
